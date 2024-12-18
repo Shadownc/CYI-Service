@@ -1,0 +1,6 @@
+*.local
+node_modules
+dist
+stats.html
+.env.development
+.env.production
