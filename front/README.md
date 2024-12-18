@@ -6,6 +6,12 @@
   一个基于 Vue3 + Cloudflare 技术栈构建的图床服务🎉
 </p>
 
+<p align="center">
+  <a href="https://cyi.lmyself.ggff.net">在线演示</a> •
+  <a href="https://kfcgw50.me">文档</a> •
+  <a href="#特性">特性</a>
+</p>
+
 ## 特性
 
 - 🆒 使用 **Vue3** 主流最新技术栈: `Vite + Vue3 + Pinia`
