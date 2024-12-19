@@ -7,6 +7,8 @@ on:
 jobs:
   build-and-upload:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -61,6 +63,7 @@ jobs:
             frontend.zip
             worker.js
 
+      # 上传到版本发布
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v1
         with:
@@ -68,4 +71,27 @@ jobs:
             frontend.zip
             worker.js
           tag_name: ${{ github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # 删除旧的 latest 标签和发布（如果存在）
+      - name: Delete old latest release
+        run: |
+          gh release delete latest --yes || true
+          git push origin :refs/tags/latest || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 创建/更新 latest 发布
+      - name: Create latest release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            frontend.zip
+            worker.js
+          tag_name: latest
+          name: Latest Release
+          body: |
+            This is always updated to the latest release
+            Current version: ${{ github.ref_name }}
+          prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
