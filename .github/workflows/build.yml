@@ -83,9 +83,5 @@ jobs:
           # 创建新的 latest 标签指向当前 commit
           git tag -f latest
           git push -f origin latest
-          
-          # 复制当前版本的 release 资产到 latest 标签
-          gh release download ${{ github.ref_name }} --pattern "*.zip" --pattern "*.js"
-          gh release upload latest frontend.zip worker.js --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
