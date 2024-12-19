@@ -1,0 +1,62 @@
+name: Sync to Service Repo
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source repository
+        uses: actions/checkout@v4
+        with:
+          path: source-repo
+
+      - name: Checkout target repository
+        uses: actions/checkout@v4
+        with:
+          repository: Shadownc/CYI-Service
+          token: ${{ secrets.PAT_TOKEN }}
+          path: target-repo
+          fetch-depth: 0
+
+      - name: Get commit message
+        id: get_commit_message
+        run: |
+          cd source-repo
+          echo "message=$(git log -1 --format=%s)" >> $GITHUB_OUTPUT
+
+      - name: Sync files
+        run: |
+          # 删除目标仓库中的 service 目录（如果存在）
+          cd target-repo
+          git rm -rf service || true
+          
+          # 创建新的 service 目录
+          mkdir -p service
+          
+          # 从源仓库复制文件，排除 .git 目录
+          cd ../source-repo
+          rsync -av --exclude='.git' . ../target-repo/service/
+          
+          cd ../target-repo
+          echo "Files in service directory:"
+          ls -la service/
+          
+          # 配置 git
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          
+          # 添加新文件
+          git add -A service/
+          
+          echo "Git status:"
+          git status
+          
+          # 提交更改
+          git commit -m "sync(service): ${{ steps.get_commit_message.outputs.message }}" || true
+          
+          # 强制推送更改
+          git push origin main
