@@ -1,0 +1,18 @@
+name = "cyi-workers"
+type = "javascript"
+main = "src/index.js"
+compatibility_date = "2024-09-20"
+
+# 绑定 D1 数据库
+[[d1_databases]]
+binding = "CYI_IMGDB"
+database_name = "database_name"
+database_id = "database_id"
+
+# 绑定 KV 命名空间
+[[kv_namespaces]]
+binding = "CYI_IMGKV"
+id = "YOUR_KV_NAMESPACE_ID"
+
+[vars]
+JWT_SECRET = "your-very-secure-secret"
