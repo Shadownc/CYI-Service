@@ -55,6 +55,7 @@ jobs:
           mv dist/index.js ../worker.js
           echo "✅ Worker build completed"
 
+      # 保存构建产物为 artifacts
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -73,24 +74,24 @@ jobs:
           tag_name: ${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # 只删除 latest 标签（如果存在）
-      - name: Delete latest tag
-        run: |
-          git push origin :refs/tags/latest || true
+      # 使用 GitHub CLI 处理 latest release
+      - name: Update latest release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # 更新 latest 发布
-      - name: Update latest release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            frontend.zip
-            worker.js
-          tag_name: latest
-          name: Latest Release
-          body: |
-            This is always updated to the latest release
-            Current version: ${{ github.ref_name }}
-          prerelease: false
-          token: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 删除旧的 latest 标签（如果存在）
+          git push origin :refs/tags/latest || true
+          
+          # 创建新的 latest 标签
+          git tag -f latest
+          git push -f origin latest
+          
+          # 删除旧的 latest release（如果存在）
+          gh release delete latest --yes || true
+          
+          # 创建新的 latest release
+          gh release create latest \
+            --title "Latest Release" \
+            --notes "This is always updated to the latest release. Current version: ${{ github.ref_name }}" \
+            frontend.zip worker.js \
+            --latest
