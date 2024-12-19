@@ -1,0 +1,11 @@
+{
+  "type": "module",
+  "scripts": {
+    "deploy:front": "node deploy-front.js",
+    "deploy:service": "node deploy-service.js",
+    "deploy": "node deploy-front.js && node deploy-service.js"
+  },
+  "devDependencies": {
+    "wrangler": "^3.96.0"
+  }
+}
