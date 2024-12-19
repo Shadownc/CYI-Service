@@ -21,6 +21,16 @@ jobs:
           cd front
           # 跳过 postinstall 脚本
           npm install --ignore-scripts
+          
+          # 创建并配置环境文件
+          cp .env.example .env.production
+          sed -i 's#VITE_AXIOS_BASE_URL.*#VITE_AXIOS_BASE_URL = "https://cyiapi.lmyself.ggff.net"#' .env.production
+          
+          # 显示配置文件内容以便验证
+          echo "Environment file content:"
+          cat .env.production
+          
+          # 构建
           npm run build
           cd dist
           zip -r ../../frontend.zip .
@@ -43,7 +53,6 @@ jobs:
           mv dist/index.js ../worker.js
           echo "✅ Worker build completed"
 
-      # 先上传为 artifacts 以便检查
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -52,7 +61,6 @@ jobs:
             frontend.zip
             worker.js
 
-      # 然后上传到 release
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v1
         with:
