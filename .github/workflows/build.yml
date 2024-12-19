@@ -1,0 +1,57 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Build Frontend
+        run: |
+          cd front
+          npm install
+          npm run build
+          cd dist
+          zip -r ../../frontend.zip .
+
+      - name: Build Worker
+        run: |
+          cd service
+          npm install
+          npx wrangler deploy --dry-run --outdir=dist
+          mv dist/index.js ../worker.js
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          name: Release ${{ github.event.inputs.version }}
+          draft: false
+          prerelease: false
+          files: |
+            frontend.zip
+            worker.js
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Release Assets
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-assets
+          path: |
+            frontend.zip
+            worker.js
