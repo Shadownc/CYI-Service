@@ -54,7 +54,7 @@ async function checkUploadAuthRequired(env) {
       .first();
     
     // 直接返回布尔值
-    return setting?.value === true;
+    return setting?.value === 'true';
   } catch (error) {
     console.error('Error checking upload auth setting:', error);
     // 默认需要认证，确保安全
