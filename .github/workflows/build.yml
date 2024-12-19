@@ -19,7 +19,8 @@ jobs:
       - name: Build Frontend
         run: |
           cd front
-          npm install
+          # 跳过 postinstall 脚本
+          npm install --ignore-scripts
           npm run build
           cd dist
           zip -r ../../frontend.zip .
@@ -28,11 +29,30 @@ jobs:
       - name: Build Worker
         run: |
           cd service
+          # 从示例文件创建 wrangler.toml
+          cp wrangler.toml.example wrangler.toml
+          # 修改配置文件，使用占位符
+          sed -i 's/database_name = ".*"/database_name = "YOUR_DATABASE_NAME"/' wrangler.toml
+          sed -i 's/database_id = ".*"/database_id = "YOUR_DATABASE_ID"/' wrangler.toml
+          sed -i 's/id = ".*"/id = "YOUR_KV_NAMESPACE_ID"/' wrangler.toml
+          sed -i 's/JWT_SECRET = ".*"/JWT_SECRET = "YOUR_JWT_SECRET"/' wrangler.toml
+          
+          # 安装依赖并构建
           npm install
           npx wrangler deploy --dry-run --outdir=dist
           mv dist/index.js ../worker.js
           echo "✅ Worker build completed"
 
+      # 先上传为 artifacts 以便检查
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-assets
+          path: |
+            frontend.zip
+            worker.js
+
+      # 然后上传到 release
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v1
         with:
