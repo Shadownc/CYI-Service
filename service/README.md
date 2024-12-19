@@ -1,3 +1,16 @@
+<p align="center">
+  <h1 align="center">CYI-Service</h1>
+</p>
+
+<p align="center">
+  一个基于 Vue3 + Cloudflare 技术栈构建的图床服务🎉
+</p>
+
+<p align="center">
+  <a href="https://cyi.lmyself.ggff.net">在线演示</a> •
+  <a href="https://kfcgw50.me">文档</a>
+</p>
+
 <h1 align="center">CYI-Worker</h1>
 
 CYI-Worker 是一个基于 Cloudflare Workers 的后端服务项目，提供了用户认证、图片管理、系统设置等功能的 API 服务。
