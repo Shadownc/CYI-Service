@@ -7,7 +7,7 @@ export function setupInterceptors(axiosInstance) {
     const { data, status, config, statusText, headers } = response
     if (headers['content-type']?.includes('json')) {
       if (SUCCESS_CODES.includes(data?.code)) {
-        return Promise.resolve(data)
+        return Promise.resolve(data.data)
       }
       const code = data?.code ?? status
 

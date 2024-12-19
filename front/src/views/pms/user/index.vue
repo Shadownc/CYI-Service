@@ -134,6 +134,7 @@ import { formatDateTime } from "@/utils";
 import { NAvatar, NButton, NSwitch, NTag } from "naive-ui";
 import api from "./api";
 import { AES_Encrypt } from "@/utils/crypto";
+import { useAuthStore } from '@/store'
 
 defineOptions({ name: "UserMgt" });
 
@@ -346,7 +347,15 @@ function onSave() {
     console.log(data);
     return handleSave({
       api: () => api.resetPwd(data),
-      cb: () => $message.success("密码重置成功"),
+      cb: () => {
+        $message.success("密码重置成功");
+        if (data.user_type === 'admin') {
+          $message.info("管理员密码已修改，请重新登录");
+          setTimeout(() => {
+            useAuthStore().logout();
+          }, 1500);
+        }
+      },
     });
   }
   handleSave();
