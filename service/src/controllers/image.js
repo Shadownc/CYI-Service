@@ -44,11 +44,33 @@ const ImageUtils = {
 };
 
 /**
+ * 检查上传是否需要认证
+ */
+async function checkUploadAuthRequired(env) {
+  try {
+    const setting = await env.CYI_IMGDB
+      .prepare('SELECT value FROM settings WHERE key = ?')
+      .bind('upload_require_auth')
+      .first();
+    
+    // 直接返回布尔值
+    return setting?.value === true;
+  } catch (error) {
+    console.error('Error checking upload auth setting:', error);
+    // 默认需要认证，确保安全
+    return true;
+  }
+}
+
+/**
  * 处理图片上传
- * 支持多图上传，区分已登录用户和公共上传
+ * 支持多图上传，区分已登录用户和公共上传 根据配置决定是否需要登录
  */
 export async function handleImageUpload(request, env) {
   console.log('handleImageUpload called');
+  
+  // 检查是否需要认证
+  const requireAuth = await checkUploadAuthRequired(env);
   
   // 尝试认证用户
   let user = null;
@@ -56,7 +78,10 @@ export async function handleImageUpload(request, env) {
     user = await authenticate(request, env);
     console.log('Authenticated user:', user);
   } catch (authError) {
-    console.log('Unauthenticated upload, treating as public');
+    if (requireAuth) {
+      throw new ValidationError('当前配置要求登录后才能上传图片');
+    }
+    console.log('Unauthenticated upload, treating as public or allowed by configuration');
   }
 
   await ImageUtils.validateContentType(request, 'multipart/form-data');
@@ -311,17 +336,24 @@ export async function handleGetImage(request, env) {
   }
   
   /**
-   * 处理图片链接上传
+   * 处理图片链接上传 根据配置决定是否需要登录
    */
   export async function handleImageLinkUpload(request, env) {
     console.log('handleImageLinkUpload called');
     
+    // 检查是否需要认证
+    const requireAuth = await checkUploadAuthRequired(env);
+    
+    // 尝试认证用户
     let user = null;
     try {
       user = await authenticate(request, env);
       console.log('Authenticated user:', user);
     } catch (authError) {
-      console.log('Unauthenticated upload, treating as public');
+      if (requireAuth) {
+        throw new ValidationError('当前配置要求登录后才能上传图片');
+      }
+      console.log('Unauthenticated upload, treating as public or allowed by configuration');
     }
   
     await ImageUtils.validateContentType(request, 'application/json');
