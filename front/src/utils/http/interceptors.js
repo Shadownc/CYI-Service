@@ -14,7 +14,7 @@ export function setupInterceptors(axiosInstance) {
       const needTip = config?.needTip !== false
 
       // 根据code处理对应的操作，并返回处理后的message
-      const message = resolveResError(code, data?.message ?? statusText, needTip)
+      const message = resolveResError(code, data?.message ?? data?.data?.error?.message ?? statusText, needTip)
 
       return Promise.reject({ code, message, error: data ?? response })
     }

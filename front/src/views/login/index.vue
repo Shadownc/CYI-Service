@@ -102,7 +102,7 @@
             :loading="loading"
             @click="handleSubmit()"
           >
-            登录
+            {{ tabValue == "signin" ? "登录" : "注册" }}
           </n-button>
         </div>
       </div>
@@ -164,10 +164,10 @@ const handleRegister = async () => {
   let { email } = registerInfo.value;
   if (!emailPattern.test(email)) return $message.warning("请输入正确的邮箱");
   let password = AES_Encrypt(registerInfo.value.password);
-  $message.loading("正在注册，请稍后...", { key: "register" });
+  $message.loading("正在注册，请稍后...", { key: "register", duration: 3000 });
   const res = await api.register({ ...registerInfo.value, password });
-  const { code, message } = res;
-  if (code == 200) {
+  const { error } = res;
+  if (!error) {
     const d = $dialog.warning({
       content: "注册成功",
       title: "提示",
