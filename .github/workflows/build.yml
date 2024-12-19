@@ -1,15 +1,11 @@
-name: Create Release
+name: Build Release Assets
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Release version (e.g., v1.0.0)'
-        required: true
-        type: string
+  release:
+    types: [created]
 
 jobs:
-  build-and-release:
+  build-and-upload:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -27,6 +23,7 @@ jobs:
           npm run build
           cd dist
           zip -r ../../frontend.zip .
+          echo "✅ Frontend build completed"
 
       - name: Build Worker
         run: |
@@ -34,24 +31,13 @@ jobs:
           npm install
           npx wrangler deploy --dry-run --outdir=dist
           mv dist/index.js ../worker.js
+          echo "✅ Worker build completed"
 
-      - name: Create Release
-        id: create_release
+      - name: Upload Release Assets
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.event.inputs.version }}
-          name: Release ${{ github.event.inputs.version }}
-          draft: false
-          prerelease: false
           files: |
             frontend.zip
             worker.js
+          tag_name: ${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Release Assets
-        uses: actions/upload-artifact@v3
-        with:
-          name: release-assets
-          path: |
-            frontend.zip
-            worker.js
