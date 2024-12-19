@@ -74,8 +74,8 @@ jobs:
           tag_name: ${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # 更新 latest 标签指向当前 release
-      - name: Update latest tag
+      # 更新 latest 标签并上传资产
+      - name: Update latest tag and release
         run: |
           # 删除旧的 latest 标签（如果存在）
           git push origin :refs/tags/latest || true
@@ -83,5 +83,8 @@ jobs:
           # 创建新的 latest 标签指向当前 commit
           git tag -f latest
           git push -f origin latest
+          
+          # 上传资产到 latest 标签
+          gh release upload latest frontend.zip worker.js --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
