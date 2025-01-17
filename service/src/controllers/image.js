@@ -456,3 +456,51 @@ export async function handleGetImage(request, env) {
       });
     }
   }
+
+  /**
+   * 处理获取随机图片的请求
+   * @param {Request} request - 请求对象
+   * @param {Object} env - 环境变量
+   * @returns {Response} 返回重定向响应
+   */
+  export async function handleGetRandomImage(request, env) {
+    console.log('handleGetRandomImage called');
+
+    // 解析查询参数
+    // const url = new URL(request.url);
+    // const includePrivate = url.searchParams.get('includePrivate') === 'true';
+
+    // 从环境变量获取配置
+    const includePrivate = env.INCLUDE_PRIVATE_IN_RANDOM === 'true';
+
+    try {
+      // 构建SQL查询
+      const whereClause = includePrivate ? '' : 'WHERE user_id IS NULL';
+      
+      // 获取随机图片记录
+      const randomImage = await env.CYI_IMGDB
+        .prepare(`
+          SELECT id
+          FROM images
+          ${whereClause}
+          ORDER BY RANDOM()
+          LIMIT 1
+        `)
+        .first();
+
+      if (!randomImage) {
+        throw new NotFoundError('No images found');
+      }
+
+      // 构建图片URL并重定向
+      const imageUrl = `${new URL(request.url).origin}/file/${randomImage.id}`;
+      return Response.redirect(imageUrl, 302);
+      
+    } catch (error) {
+      console.error('Error fetching random image:', error);
+      if (error instanceof NotFoundError) {
+        throw error;
+      }
+      throw new ValidationError('获取随机图片失败');
+    }
+  }

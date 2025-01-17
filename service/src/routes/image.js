@@ -3,7 +3,8 @@ import {
   handleGetImage, 
   handleGetImages, 
   handleGetPublicImages, 
-  handleImageLinkUpload 
+  handleImageLinkUpload,
+  handleGetRandomImage 
 } from '../controllers/image.js';
 import { withResponseWrapper } from '../middleware/response.middleware.js';
 
@@ -13,5 +14,6 @@ export function imageRoutes(router) {
     .post('/upload-links', withResponseWrapper(handleImageLinkUpload))
     .get('/file/:id', withResponseWrapper(handleGetImage))
     .post('/images', withResponseWrapper(handleGetImages))
-    .post('/pubimg', withResponseWrapper(handleGetPublicImages));
+    .post('/pubimg', withResponseWrapper(handleGetPublicImages))
+    .get('/random ', withResponseWrapper(handleGetRandomImage));
 }

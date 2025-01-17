@@ -16,3 +16,4 @@ id = "YOUR_KV_NAMESPACE_ID"
 
 [vars]
 JWT_SECRET = "your-very-secure-secret"
+INCLUDE_PRIVATE_IN_RANDOM = "false" 
