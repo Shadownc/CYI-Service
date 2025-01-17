@@ -500,14 +500,15 @@ export async function handleGetImage(request, env) {
 
       const { metadata } = await env.CYI_IMGKV.getWithMetadata(randomImage.id);
       
-      // 直接返回图片数据和响应头
-      return new Response(imageData, {
+      // 返回与 handleGetImage 相同的格式
+      return {
+        body: imageData,
         headers: {
           'Content-Type': metadata.mimeType || 'application/octet-stream',
           'Content-Disposition': `inline; filename="${metadata.filename || 'unknown.png'}"`,
           'Cache-Control': CONFIG.CACHE_CONTROL,
         },
-      });
+      };
       
     } catch (error) {
       console.error('Error fetching random image:', error);
