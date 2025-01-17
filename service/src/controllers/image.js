@@ -1,6 +1,7 @@
 import { authenticate } from './auth.js';
 import { nanoid } from 'nanoid';
 import { ValidationError, NotFoundError } from '../utils/errors.js';
+import { addCorsHeaders } from './utils/index.js';
 
 // 常量配置
 const CONFIG = {
@@ -494,7 +495,8 @@ export async function handleGetImage(request, env) {
 
       // 构建图片URL并重定向
       const imageUrl = `${new URL(request.url).origin}/file/${randomImage.id}`;
-      return Response.redirect(imageUrl, 302);
+      const response = Response.redirect(imageUrl, 302);
+      return addCorsHeaders(response);  // 添加 CORS 头
       
     } catch (error) {
       console.error('Error fetching random image:', error);
