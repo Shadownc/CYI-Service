@@ -15,5 +15,5 @@ export function imageRoutes(router) {
     .get('/file/:id', withResponseWrapper(handleGetImage))
     .post('/images', withResponseWrapper(handleGetImages))
     .post('/pubimg', withResponseWrapper(handleGetPublicImages))
-    .get('/random', handleGetRandomImage);
+    .get('/random', withResponseWrapper(handleGetRandomImage));
 }
