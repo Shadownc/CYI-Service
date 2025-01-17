@@ -1,7 +1,7 @@
 import { authenticate } from './auth.js';
 import { nanoid } from 'nanoid';
 import { ValidationError, NotFoundError } from '../utils/errors.js';
-import { addCorsHeaders } from './utils/index.js';
+import { addCorsHeaders } from '../utils/index.js';
 
 // 常量配置
 const CONFIG = {
