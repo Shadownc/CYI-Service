@@ -1,7 +1,6 @@
 import { authenticate } from './auth.js';
 import { nanoid } from 'nanoid';
 import { ValidationError, NotFoundError } from '../utils/errors.js';
-import { addCorsHeaders } from '../utils/index.js';
 
 // 常量配置
 const CONFIG = {
@@ -493,10 +492,22 @@ export async function handleGetImage(request, env) {
         throw new NotFoundError('No images found');
       }
 
-      // 构建图片URL并重定向
-      const imageUrl = `${new URL(request.url).origin}/file/${randomImage.id}`;
-      const response = Response.redirect(imageUrl, 302);
-      return addCorsHeaders(response);  // 添加 CORS 头
+      // 直接获取图片数据
+      const imageData = await env.CYI_IMGKV.get(randomImage.id, { type: 'arrayBuffer' });
+      if (!imageData) {
+        throw new NotFoundError('Image not found');
+      }
+
+      const { metadata } = await env.CYI_IMGKV.getWithMetadata(randomImage.id);
+      
+      // 直接返回图片数据和响应头
+      return new Response(imageData, {
+        headers: {
+          'Content-Type': metadata.mimeType || 'application/octet-stream',
+          'Content-Disposition': `inline; filename="${metadata.filename || 'unknown.png'}"`,
+          'Cache-Control': CONFIG.CACHE_CONTROL,
+        },
+      });
       
     } catch (error) {
       console.error('Error fetching random image:', error);
